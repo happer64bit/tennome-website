@@ -66,7 +66,7 @@ export const authOptions: AuthOptions = {
         strategy: "jwt",
     },
     // Setting secret here for convenience, do not use this in production
-    secret: "...",
+    secret: "b44935463810ed4aa5456a357e18fae000fa76ca813f3f5a7ddec7af0f12e482",
 };
 
 const handler = NextAuth(authOptions)

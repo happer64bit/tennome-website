@@ -1,12 +1,11 @@
 import { prisma } from "@/lib/prisma";
+import { webcrypto } from "crypto";
 import { NextRequest } from "next/server";
-
-const genRanHex = (size: number) => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
 
 export async function POST(request: NextRequest) {
     const { publicAddress } = await request.json();
 
-    const nonce = genRanHex(64)
+    const nonce = webcrypto.getRandomValues(new Uint32Array(64)).toString()
 
     const expires = new Date(new Date().getTime() + 1000 * 60 * 60);
 
