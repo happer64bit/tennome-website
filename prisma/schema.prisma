@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @unique @default(cuid())
+  userId           String            @unique @default(cuid())
+  publicAddress    String            @unique
+  sessions         Session[]
+  likedVideos      Like[] // Define the many-to-many relationship using an intermediate model
+  dislikedVideos   Video[]           @relation("Dislikes")
+  comments         Comment[]
+  favoriteVideos   Video[]           @relation("Favorites")
+  createdAt        DateTime          @default(now())
+  CryptoLoginNonce CryptoLoginNonce?
+}
+
+model Session {
+  id          String   @unique @default(cuid())
+  userId      String   @unique @default(cuid())
+  accessToken String   @unique
+  expire      DateTime
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VideoGroup {
+  id        String   @unique @default(cuid())
+  title     String   @default("Playlist")
+  groupId   String   @unique @default(cuid())
+  createdAt DateTime @default(now())
+  videos    Video[]
+}
+
+model Video {
+  id               String      @id @unique @default(cuid())
+  videoId          String      @unique @default(cuid())
+  videoIPFSAddress String      @unique
+  title            String
+  description      String
+  createdAt        DateTime    @default(now())
+  videoGroup       VideoGroup? @relation(fields: [videoGroupId], references: [id])
+  videoGroupId     String?     @unique @default(cuid())
+  likedBy          Like[] // Define the many-to-many relationship using an intermediate model
+  dislikedBy       User[]      @relation("Dislikes")
+  comments         Comment[]
+  favoritedBy      User[]      @relation("Favorites")
+}
+
+model Like {
+  id      String @id @unique @default(cuid())
+  userId  String
+  videoId String
+  user    User   @relation(fields: [userId], references: [id])
+  video   Video  @relation(fields: [videoId], references: [id])
+}
+
+model Comment {
+  id        String   @unique @default(cuid())
+  text      String
+  createdAt DateTime @default(now())
+  userId    String   @unique @default(cuid())
+  videoId   String   @unique @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  video     Video    @relation(fields: [videoId], references: [id])
+}
+
+model CryptoLoginNonce {
+  userId  String   @id @unique @default(cuid())
+  nonce   String
+  expires DateTime
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
